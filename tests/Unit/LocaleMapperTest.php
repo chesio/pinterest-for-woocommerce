@@ -22,16 +22,14 @@ class PinterestTestLocaleMapper extends TestCase {
 	/**
 	 * Set up the filter for the locale.
 	 */
-    protected function setUp(): void
-    {
+	protected function setUp(): void {
 		add_filter( 'pre_determine_locale', array( $this, 'locale_filter' ) );
-    }
+	}
 
 	/**
 	 * Remove the filter for the locale.
 	 */
-	protected function tearDown(): void
-	{
+	protected function tearDown(): void {
 		remove_filter( 'pre_determine_locale', array( $this, 'locale_filter' ) );
 	}
 
@@ -41,6 +39,11 @@ class PinterestTestLocaleMapper extends TestCase {
 	 */
 	public function test_locale_with_full_match() {
 		$this->locale = 'en_US';
+		$this->assertEquals( 'en-US', LocaleMapper::get_locale_for_api() );
+	}
+
+	public function test_wp_en_locale_maps_to_pinterest() {
+		$this->locale = 'en';
 		$this->assertEquals( 'en-US', LocaleMapper::get_locale_for_api() );
 	}
 

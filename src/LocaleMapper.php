@@ -77,6 +77,10 @@ class LocaleMapper {
 		'pt-BR'  => 1,
 	);
 
+	private const WP_TO_PINTEREST_LOCALE_CODE_MAP = [
+		'en' => 'en-US',
+	];
+
 	/**
 	 * Get Pinterest locale code for API.
 	 * Pinterest API uses hyphens instead of underscores in locale codes so we need to replace them.
@@ -98,6 +102,11 @@ class LocaleMapper {
 
 		if ( array_key_exists( $language, self::PINTEREST_LOCALE_CODES ) ) {
 			return $language;
+		}
+
+		// If no mapping found, try to apply specific mapping rules from WP to Pinterest
+		if ( ! empty( self::WP_TO_PINTEREST_LOCALE_CODE_MAP[ $locale ] ) ) {
+			return self::WP_TO_PINTEREST_LOCALE_CODE_MAP[ $locale ];
 		}
 
 		// If no match was found, throw an exception.
