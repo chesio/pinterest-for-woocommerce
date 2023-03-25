@@ -17,6 +17,7 @@ use Automattic\WooCommerce\Pinterest\Utilities\Tracks;
 use Automattic\WooCommerce\Pinterest\API\UserInteraction;
 use Automattic\WooCommerce\Admin\Features\OnboardingTasks\TaskLists;
 use Automattic\WooCommerce\Pinterest\Admin\Tasks\Onboarding;
+use Automattic\WooCommerce\Pinterest\WooCommerceMultichannelAiIntegration\AiIntegration;
 
 if ( ! class_exists( 'Pinterest_For_Woocommerce' ) ) :
 
@@ -106,6 +107,8 @@ if ( ! class_exists( 'Pinterest_For_Woocommerce' ) ) :
 		 * @since 1.0.0
 		 */
 		protected static $dirty_settings = array();
+
+		protected $ai_integration = null;
 
 		/**
 		 * The default settings that will be created
@@ -267,6 +270,10 @@ if ( ! class_exists( 'Pinterest_For_Woocommerce' ) ) :
 			add_action( 'init', array( Pinterest\Billing::class, 'schedule_event' ) );
 			add_action( 'init', array( Pinterest\AdCredits::class, 'schedule_event' ) );
 
+			// AiIntegration.
+			$this->ai_integration = new AiIntegration();
+			add_action('init', array( $this->ai_integration, 'init' ) );
+
 			// Verify that the ads_campaign is active or not.
 			add_action( 'admin_init', array( Pinterest\AdCredits::class, 'check_if_ads_campaign_is_active' ) );
 
@@ -287,6 +294,7 @@ if ( ! class_exists( 'Pinterest_For_Woocommerce' ) ) :
 
 			// Hook the setup task. The hook admin_init is not triggered when the WC fetches the tasks using the endpoint: wp-json/wc-admin/onboarding/tasks and hence hooking into init.
 			add_action( 'init', array( $this, 'add_onboarding_task' ), 20 );
+
 
 		}
 
