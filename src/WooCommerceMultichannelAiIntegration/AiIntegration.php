@@ -7,14 +7,23 @@ use Automattic\WooCommerce\Pinterest\Product\Attributes\GoogleCategory;
 
 class AiIntegration {
 
+    public const ATTRIBUTES = array(
+        'google_product_category'
+    );
+
     public function init() {
         add_filter( 'woocommerce_multichannel_product_ai_request_attributes', array( $this, 'request_attributes' ), 10, 2 );
         add_action( 'woocommerce_multichannel_product_ai_attributes_ready', array( $this, 'attributes_ready' ), 10, 2 );
+        add_filter( 'store_manager_ai_settings_sections', array( $this, 'add_settings_section' ) );
     }
 
     public function request_attributes( $attributes ) {
-        $attributes[] = 'google_product_category';
-        return $attributes;
+        return array_merge( $attributes, self::ATTRIBUTES );
+    }
+
+    public function add_settings_section( $sections ) {
+        $sections['Pinterest'] = self::ATTRIBUTES;
+        return $sections;
     }
 
     public function attributes_ready( $attributes, $product_id ) {
@@ -33,13 +42,13 @@ class AiIntegration {
         $attributeManager = AttributeManager::instance();
 
         // Get the WooCommerce product.
-        $product = wc_get_product($product_id);
+        $product = wc_get_product ($product_id );
 
         // Create a GoogleCategory attribute object with the new category value.
         $googleCategoryAttribute = new GoogleCategory( $new_category_value );
 
         // Update the google_product_category for the product.
-        $attributeManager->update($product, $googleCategoryAttribute);
+        $attributeManager->update( $product, $googleCategoryAttribute );
 
     }
 }
