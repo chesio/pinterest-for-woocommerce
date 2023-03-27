@@ -5,6 +5,9 @@ namespace Automattic\WooCommerce\Pinterest\WooCommerceMultichannelAiIntegration;
 use Automattic\WooCommerce\Pinterest\Product\Attributes\AttributeManager;
 use Automattic\WooCommerce\Pinterest\Product\Attributes\GoogleCategory;
 
+// Check if the setting is enabled ( managed by the Store Manager AI plugin )
+use Automattic\WooCommerce\MultichannelProductAi\PluginSettings;
+
 class AiIntegration {
 
     public const ATTRIBUTES = array(
@@ -26,9 +29,24 @@ class AiIntegration {
         return $sections;
     }
 
+    public function should_update_attribute( $attribute ) {
+        if( ! in_array( $attribute, self::ATTRIBUTES ) ) {
+            return false;
+        }
+
+        if ( class_exists( PluginSettings::class ) ) {
+            return PluginSettings::get_setting_value( 'pinterest', $attribute ) === '1';
+        }
+
+        return false;
+    }
+
     public function attributes_ready( $attributes, $product_id ) {
 
         foreach ( $attributes as $attribute => $value ) {
+            if ( ! $this->should_update_attribute( $attribute ) ) {
+                continue;
+            }
             if ( $attribute === 'google_product_category' ) {
                 $this->update_google_product_category_for_a_product( $product_id, $value );
             }
