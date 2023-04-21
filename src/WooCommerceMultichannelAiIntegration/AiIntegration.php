@@ -11,17 +11,21 @@ use Automattic\WooCommerce\MultichannelProductAi\PluginSettings;
 class AiIntegration {
 
     public const ATTRIBUTES = array(
-        'google_product_category'
+        'google_product_category',
+        'condition',
     );
 
     public function init() {
         add_filter( 'woocommerce_multichannel_product_ai_request_attributes', array( $this, 'request_attributes' ), 10, 2 );
-        add_action( 'woocommerce_multichannel_product_ai_attributes_ready', array( $this, 'attributes_ready' ), 10, 2 );
+        add_action( 'woocommerce_multichannel_product_ai_attributes_ready', array( $this, 'attributes_ready' ), 10, 3 );
         add_filter( 'store_manager_ai_settings_sections', array( $this, 'add_settings_section' ) );
     }
 
     public function request_attributes( $attributes ) {
-        return array_merge( $attributes, self::ATTRIBUTES );
+        return array_merge(
+            $attributes,
+            array( 'pinterest_for_woocommerce', self::ATTRIBUTES )
+        );
     }
 
     public function add_settings_section( $sections ) {
@@ -41,7 +45,11 @@ class AiIntegration {
         return false;
     }
 
-    public function attributes_ready( $attributes, $product_id ) {
+    public function attributes_ready( $plugin, $attributes, $product_id ) {
+
+        if ( $plugin !== 'pinterest_for_woocommerce' ) {
+            return $attributes;
+        }
 
         foreach ( $attributes as $attribute => $value ) {
             if ( ! $this->should_update_attribute( $attribute ) ) {
